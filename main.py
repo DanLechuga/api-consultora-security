@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse,RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette import status
 from security_middleware.dto.response import UserOutput,Token
-# from security_middleware.dto.request import CreateUser
+from security_middleware.dto.request import CreateUser
 from security_Service import serviceSecurity
 # {
 #         "name": "Users",
@@ -37,24 +37,24 @@ async def login(userCredentials :OAuth2PasswordRequestForm = Depends()):
         )
     return JSONResponse(
         status_code=status.HTTP_202_ACCEPTED,
-        content={"acces_token":f"{data.access_token}","type_token":"bearer"}
+        content={"acces_token":f"{data.access_token}","type_token":"Bearer"}
     )            
 
 
-# @app.post('/security/user',tags=['Users'], status_code=status.HTTP_201_CREATED,response_model=UserOutput.UserOutput)
-# async def create_users(user:CreateUser.CreateUser):
-#     try:
-#         new_user = await serviceSecurity.AddUser(user)
-#     except Exception as e:
-#         raise HTTPException(
-#             status_code=status.HTTP_409_CONFLICT,
-#             detail=f"{e}"
-#         )
-#     return JSONResponse(
-#         status_code= status.HTTP_201_CREATED,
-#         content={
-#             "created":True,
-#             "data":new_user.id
-#         }
-#     )
+@app.post('/security/user',tags=['Users'], status_code=status.HTTP_201_CREATED,response_model=UserOutput.UserOutput)
+async def create_users(user:CreateUser.CreateUser):
+    try:
+        new_user = await serviceSecurity.AddUser(user)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"{e}"
+        )
+    return JSONResponse(
+        status_code= status.HTTP_201_CREATED,
+        content={
+            "created":True,
+            "data":new_user.id
+        }
+    )
 

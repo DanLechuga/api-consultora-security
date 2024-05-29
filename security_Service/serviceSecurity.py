@@ -1,8 +1,8 @@
 import datetime
-from fastapi import Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import HTTPException
+
 from bson import ObjectId
-from jose import JWTError,jwt
+from jose import jwt
 from security_middleware.dto.response import UserOutput,Token,DataToken
 from security_middleware.helpers import utils
 from security_middleware.dto.request import CreateUser
@@ -42,7 +42,7 @@ async def AddUser(user : CreateUser.CreateUser) -> UserOutput.UserOutput:
 async def verifyLogin(user) -> Token.Token:
     userinDb =  await userRepository.GetUserByEmail(user.username)
     if(userinDb is not None):
-        if(verifyPassword(user.password,userinDb)):    
+        if(utils.verify_pass(user.password,userinDb['password'])):    
             to_encode = userinDb
             expire = datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
             to_encode.update({"expire": expire.strftime("%Y-%m-%d %H:%M:%S")})
@@ -62,8 +62,3 @@ async def verifyLogin(user) -> Token.Token:
                                           headers={"WWW-Authenticate": "Bearer"}) 
         
         
-def verifyPassword(password,user)->bool:
-    if(user['password'] == utils.hash_pass(password)):
-        return True
-    else:
-        return False
